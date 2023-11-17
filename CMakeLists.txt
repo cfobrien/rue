@@ -18,7 +18,8 @@ add_subdirectory(lib/googletest)
 add_executable(
 	rue
 	src/main.cpp
-  src/rue_tokenizer.cpp
+    src/rue_tokenizer.cpp
+    src/rue_error.cpp
 )
 
 enable_testing()
@@ -27,14 +28,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test)
 
 add_executable(
 	tokenizer_test
-  test/main.cpp
+    test/main.cpp
 	test/tokenizer_test.cc
 )
 
 target_link_libraries(
 	tokenizer_test
-  PUBLIC
-  gtest
+    PUBLIC
+    gtest
 )
 
 add_test(
