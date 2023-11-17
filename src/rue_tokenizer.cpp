@@ -1,22 +1,23 @@
 #include "rue_tokenizer.h"
 
+namespace RueConstants
+{
+
+const std::string PMTD_WHITESPACE_CHARS = " \t\n\r";
+const std::string PMTD_KEYWORDS_CHARS = "abcdefghijklmnopqrstuvwyxz";
+const std::string PMTD_USER_DEF_LIT_CHARS_HEAD = "ABCDEFGHIJKLMNOPQRSTUVWYXZ"
+                                                 "abcdefghijklmnopqrstuvwyxz"
+                                                 "_";
+const std::string PMTD_USER_DEF_LIT_CHARS_TAIL = "ABCDEFGHIJKLMNOPQRSTUVWYXZ"
+                                                 "abcdefghijklmnopqrstuvwyxz"
+                                                 "0123456789_";
+const std::string PMTD_INT_LIT_CHARS = "0123456789";
+
+std::vector<std::string_view> RUELANG_KEYWORDS = {"return"};
+} // namespace RueConstants
+
 namespace RueTokenizer
 {
-
-namespace Constants
-{
-const char *pmtd_whitespace = " \t\n\r";
-const char *pmtd_keyword = "abcdefghijklmnopqrstuvwyxz";
-const char *pmtd_user_def_lit_head = "ABCDEFGHIJKLMNOPQRSTUVWYXZ"
-                                     "abcdefghijklmnopqrstuvwyxz"
-                                     "_";
-const char *pmtd_user_def_lit_tail = "ABCDEFGHIJKLMNOPQRSTUVWYXZ"
-                                     "abcdefghijklmnopqrstuvwyxz"
-                                     "0123456789_";
-const char *pmtd_int_lit = "0123456789";
-
-std::vector<std::string_view> supported_keywords = {"return"};
-} // namespace Constants
 
 std::string pad_with_ellipsis(std::string const &str, size_t const max_len)
 {
@@ -49,14 +50,14 @@ std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokenize(std:
     while (contents.length() >= pos)
     {
         std::string_view contents_tail(contents.data() + pos);
-        pos += contents_tail.find_first_not_of(RueTokenizer::Constants::pmtd_whitespace);
+        pos += contents_tail.find_first_not_of(RueConstants::PMTD_WHITESPACE_CHARS);
 
         // check if current pos corresponds to the start of a keyword
-        if (is_char_in_pattern(contents.at(pos), RueTokenizer::Constants::pmtd_keyword))
+        if (is_char_in_pattern(contents.at(pos), RueConstants::PMTD_KEYWORDS_CHARS))
         {
             std::string_view longest_matching_keyword;
 
-            for (std::string_view str : RueTokenizer::Constants::supported_keywords)
+            for (std::string_view str : RueConstants::RUELANG_KEYWORDS)
             {
                 if (contents_tail.starts_with(str))
                 {
@@ -80,7 +81,7 @@ std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokenize(std:
         // Since we haven't, this means we're facing an unknown token. Let's
         // truncate at the nearest sign of whitespace and report our findings.
         std::string_view first_unknown_token(contents_tail.data(),
-                                             contents_tail.find_first_of(RueTokenizer::Constants::pmtd_whitespace));
+                                             contents_tail.find_first_of(RueConstants::PMTD_WHITESPACE_CHARS));
 
         RUE_FAIL(RueError::RueError::UNKNOWN_TOKEN,
                  "Unknown token is: " + pad_with_ellipsis(std::string(first_unknown_token), 15));

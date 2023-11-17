@@ -24,11 +24,11 @@ enum class TokenType
 typedef std::pair<TokenType, std::optional<std::string_view>> Token;
 
 // Caller is responsible for passing in a null terminated pattern
-constexpr bool is_char_in_pattern(const char c, const char *pat)
+constexpr bool is_char_in_pattern(const char seeked_char, std::string const &pat)
 {
-    for (const char *pos = pat; *pos != '\0'; pos++)
+    for (char const c : pat)
     {
-        if (*pos == c)
+        if (seeked_char == c)
         {
             return true;
         }

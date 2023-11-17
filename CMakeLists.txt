@@ -20,6 +20,7 @@ add_executable(
 	src/main.cpp
     src/rue_tokenizer.cpp
     src/rue_error.cpp
+    src/rue_file_utils.cpp
 )
 
 enable_testing()
