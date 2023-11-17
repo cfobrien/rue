@@ -11,12 +11,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 include_directories(src test)
+link_directories(src)
 add_subdirectory(lib/googletest)
 
 
 add_executable(
 	rue
 	src/main.cpp
+  src/rue_tokenizer.cpp
 )
 
 enable_testing()
@@ -24,17 +26,18 @@ enable_testing()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test)
 
 add_executable(
-	hello_test
-	test/hello_test.cc
+	tokenizer_test
+  test/main.cpp
+	test/tokenizer_test.cc
 )
 
 target_link_libraries(
-	hello_test
+	tokenizer_test
   PUBLIC
   gtest
 )
 
 add_test(
-	NAME test/hello_test
-	COMMAND hello_test
+	NAME test/tokenizer_test
+	COMMAND tokenizer_test
 )
