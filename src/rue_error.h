@@ -8,7 +8,6 @@ namespace RueError
 {
 
 #define RUE_FAIL(rue_err, rue_err_msg) _rue_fail(rue_err, #rue_err, rue_err_msg)
-
 #define RUE_ASSERT(cond, rue_err, rue_err_msg) _rue_assert((cond), rue_err, #rue_err, rue_err_msg)
 
 enum class RueError
@@ -17,7 +16,10 @@ enum class RueError
     NO_CONTENT,
     UNKNOWN_TOKEN,
     INVALID_INPUT_FILENAME,
-    MISSING_INPUT_FILENAME
+    MISSING_INPUT_FILENAME,
+    CANNOT_OPEN_FILE,
+    CANNOT_CLOSE_FILE,
+    EMPTY_INPUT_FILE
 };
 
 void _rue_fail(RueError const rue_err_code, std::string_view const rue_err_name, std::string_view const rue_err_msg);

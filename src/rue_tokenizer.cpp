@@ -32,7 +32,7 @@ std::string pad_with_ellipsis(std::string const &str, size_t const max_len)
     }
     else
     {
-        padded = str.substr(0, max_len - 3) + "...";
+        padded = str.length() > 3 ? str.substr(0, max_len - 3) + "..." : str;
     }
     return padded;
 }

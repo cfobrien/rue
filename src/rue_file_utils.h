@@ -2,7 +2,6 @@
 #define RUE_FILE_UTILS_H
 
 #include <string>
-#include <string_view>
 
 namespace RueConstants
 {
@@ -14,7 +13,7 @@ extern const std::string RUE_SOURCE_SUFFIX;
 namespace RueFileUtils
 {
 
-const std::string_view get_rue_source_file_contents(const std::string_view input_filename);
+const std::string get_rue_source_file_contents(std::string const &input_filename);
 
 } // namespace RueFileUtils
 
