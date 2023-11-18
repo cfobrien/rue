@@ -20,5 +20,6 @@ TEST(EllipsisPaddingTest, TokenizerAssertions)
     ASSERT_EQ("Symb0l$", RueTokenizer::pad_with_ellipsis("Symb0l$", 99));
     ASSERT_EQ("Rue", RueTokenizer::pad_with_ellipsis("Rue", 3));
     ASSERT_EQ("Rue", RueTokenizer::pad_with_ellipsis("Rue", 1));
-    ASSERT_EQ("R...", RueTokenizer::pad_with_ellipsis("Rue", 4));
+    ASSERT_EQ("Rue...", RueTokenizer::pad_with_ellipsis("Ruedog", 6));
+    ASSERT_EQ("Rue...", RueTokenizer::pad_with_ellipsis("Rue is a dog", 6));
 }

@@ -26,7 +26,7 @@ std::string pad_with_ellipsis(std::string const &str, size_t const max_len)
     {
         RUE_FAIL(RueError::RueError::NO_CONTENT, "Cannot pad empty string with ellipses");
     }
-    if (str.length() <= max_len)
+    if (str.length() <= max_len - 3)
     {
         padded = str;
     }
