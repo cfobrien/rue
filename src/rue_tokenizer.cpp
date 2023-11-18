@@ -71,6 +71,7 @@ std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokenize(std:
             if (longest_matching_keyword.length() > 0)
             {
                 // found our keyword, advance pos and start fresh
+                std::cout << '\'' << longest_matching_keyword << "\'\n";
                 tokens.push_back({RueTokenizer::TokenType::KEYWORD, std::optional(longest_matching_keyword)});
                 pos += longest_matching_keyword.length();
                 continue;
@@ -80,8 +81,13 @@ std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokenize(std:
         // We expect to have identified all tokens at this point in our loop.
         // Since we haven't, this means we're facing an unknown token. Let's
         // truncate at the nearest sign of whitespace and report our findings.
-        std::string_view first_unknown_token(contents_tail.data(),
-                                             contents_tail.find_first_of(RueConstants::PMTD_WHITESPACE_CHARS));
+        std::cout << '\'' << contents_tail << "\'\n";
+
+        size_t const first_unknown_token_begin = contents_tail.find_first_not_of(RueConstants::PMTD_WHITESPACE_CHARS);
+        size_t const first_unknown_token_length =
+            contents_tail.substr(first_unknown_token_begin).find_first_of(RueConstants::PMTD_WHITESPACE_CHARS);
+        std::string_view first_unknown_token =
+            contents_tail.substr(first_unknown_token_begin, first_unknown_token_length);
 
         RUE_FAIL(RueError::RueError::UNKNOWN_TOKEN,
                  "Unknown token is: " + pad_with_ellipsis(std::string(first_unknown_token), 15));

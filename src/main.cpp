@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
                std::format("Missing input source file name. Aborting... (usage: rue <input>{})",
                            RueConstants::RUE_SOURCE_SUFFIX));
 
-    std::string input_file_contents = RueFileUtils::get_rue_source_file_contents(argv[1]);
+    std::string const &input_file_contents = RueFileUtils::get_rue_source_file_contents(argv[1]);
 
     std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokens =
         RueTokenizer::tokenize(input_file_contents);
