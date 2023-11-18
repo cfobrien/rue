@@ -23,6 +23,12 @@ add_executable(
     src/rue_file_utils.cpp
 )
 
+add_library(
+    rue_tokenizer
+    src/rue_tokenizer.cpp
+    src/rue_error.cpp
+)
+
 enable_testing()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test)
@@ -37,6 +43,7 @@ target_link_libraries(
 	tokenizer_test
     PUBLIC
     gtest
+    rue_tokenizer
 )
 
 add_test(
