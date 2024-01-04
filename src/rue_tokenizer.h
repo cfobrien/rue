@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -18,26 +19,26 @@ enum class TokenType
 {
     KEYWORD,
     USER_DEF_LIT,
-    INT_LIT
+    NUM_LIT,
+    BIN_OPERATOR,
+    STRING_LIT
 };
 
 typedef std::pair<TokenType, std::optional<std::string_view>> Token;
-
-// Caller is responsible for passing in a null terminated pattern
-constexpr bool is_char_in_pattern(const char seeked_char, std::string const &pat)
+typedef std::map<TokenType, std::string> TokenInfo;
+typedef struct
 {
-    for (char const c : pat)
-    {
-        if (seeked_char == c)
-        {
-            return true;
-        }
-    }
-    return false;
-}
+    TokenType type;
+    uint64_t length;
+    uint64_t line;
+    uint64_t column;
+} LexemeInfo;
 
-std::string pad_with_ellipsis(std::string const &str, size_t const max_len);
-std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokenize(std::string_view const contents);
+std::string const LINE_BREAK_PATTERN = "\n|\r\n|\r|\n\r";
+std::string const NUM_LIT_PATTERN = "-?[0-9]*\\.?[0-9]+(e-?[0-9]*\\.?[0-9]+)?";
+std::string const KEYWORD_PATTERN = "return|exit";
+
+std::map<uint64_t, LexemeInfo> tokenize(std::string const &contents);
 
 } // namespace RueTokenizer
 

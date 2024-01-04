@@ -14,12 +14,7 @@ int main(int argc, char *argv[])
 
     std::string const &input_file_contents = RueFileUtils::get_rue_source_file_contents(argv[1]);
 
-    std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokens =
-        RueTokenizer::tokenize(input_file_contents);
-    if (std::holds_alternative<std::vector<RueTokenizer::Token>>(tokens))
-    {
-        std::cout << std::get<std::vector<RueTokenizer::Token>>(tokens).size() << std::endl;
-    }
+    RueTokenizer::tokenize(input_file_contents);
 
     return EXIT_SUCCESS;
 }

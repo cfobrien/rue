@@ -38,7 +38,10 @@ add_executable(
     test/main.cpp
 	test/tokenizer_test.cc
 )
-
+add_test(
+	NAME test/tokenizer_test
+	COMMAND tokenizer_test
+)
 target_link_libraries(
 	tokenizer_test
     PUBLIC
@@ -46,7 +49,19 @@ target_link_libraries(
     rue_tokenizer
 )
 
-add_test(
-	NAME test/tokenizer_test
-	COMMAND tokenizer_test
+add_executable(
+    regex_test
+    test/main.cpp
+    test/regex_test.cc
 )
+add_test(
+    NAME test/regex_test
+    COMMAND regex_test
+)
+target_link_libraries(
+    regex_test
+    PUBLIC
+    gtest
+    rue_tokenizer
+)
+

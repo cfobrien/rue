@@ -19,7 +19,10 @@ enum class RueError
     MISSING_INPUT_FILENAME,
     CANNOT_OPEN_FILE,
     CANNOT_CLOSE_FILE,
-    EMPTY_INPUT_FILE
+    EMPTY_INPUT_FILE,
+    NOT_MATCHED,
+    NO_MORE_TOKENS,
+    INCOMPLETE_GRAMMAR
 };
 
 void _rue_fail(RueError const rue_err_code, std::string_view const rue_err_name, std::string_view const rue_err_msg);

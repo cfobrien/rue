@@ -1,98 +1,60 @@
 #include "rue_tokenizer.h"
-
-namespace RueConstants
-{
-
-const std::string PMTD_WHITESPACE_CHARS = " \t\n\r";
-const std::string PMTD_KEYWORDS_CHARS = "abcdefghijklmnopqrstuvwyxz";
-const std::string PMTD_USER_DEF_LIT_CHARS_HEAD = "ABCDEFGHIJKLMNOPQRSTUVWYXZ"
-                                                 "abcdefghijklmnopqrstuvwyxz"
-                                                 "_";
-const std::string PMTD_USER_DEF_LIT_CHARS_TAIL = "ABCDEFGHIJKLMNOPQRSTUVWYXZ"
-                                                 "abcdefghijklmnopqrstuvwyxz"
-                                                 "0123456789_";
-const std::string PMTD_INT_LIT_CHARS = "0123456789";
-
-std::vector<std::string_view> RUELANG_KEYWORDS = {"return"};
-} // namespace RueConstants
+#include "rue_ast.h"
+#include <algorithm>
+#include <regex>
 
 namespace RueTokenizer
 {
 
-std::string pad_with_ellipsis(std::string const &str, size_t const max_len)
+TokenInfo TOKEN_INFO = {{TokenType::KEYWORD, KEYWORD_PATTERN}, {TokenType::NUM_LIT, NUM_LIT_PATTERN}};
+
+std::map<uint64_t, LexemeInfo> tokenize(std::string const &contents)
 {
-    std::string padded;
-    if (!str.length())
-    {
-        RUE_FAIL(RueError::RueError::NO_CONTENT, "Cannot pad empty string with ellipses");
-    }
-    if (str.length() <= max_len - 3)
-    {
-        padded = str;
-    }
-    else
-    {
-        padded = str.length() > 3 ? str.substr(0, max_len - 3) + "..." : str;
-    }
-    return padded;
-}
+    auto compare_sub_match_length = [](std::sub_match<std::string::const_iterator> const &lhs,
+                                       std::sub_match<std::string::const_iterator> const &rhs) {
+        return lhs.length() > rhs.length();
+    };
 
-std::variant<RueError::RueError, std::vector<RueTokenizer::Token>> tokenize(std::string_view const contents)
-{
-    if (contents.empty())
+    std::map<uint64_t, LexemeInfo> lexeme_info;
+    std::vector<uint64_t> newline_positions;
+
+    std::smatch matches;
+    auto const line_break_regex = std::regex(LINE_BREAK_PATTERN);
+
+    for (auto it = std::sregex_iterator(contents.begin(), contents.end(), line_break_regex);
+         it != std::sregex_iterator(); it++)
     {
-        RUE_FAIL(RueError::RueError::NO_CONTENT, "Can't tokenize empty string. Aborting...");
+        newline_positions.push_back((*it).position(0));
     }
 
-    uint32_t pos = 0;
-    std::vector<RueTokenizer::Token> tokens;
-
-    while (contents.length() >= pos)
+    for (auto const &token_info : TOKEN_INFO)
     {
-        std::string_view contents_tail(contents.data() + pos);
-        pos += contents_tail.find_first_not_of(RueConstants::PMTD_WHITESPACE_CHARS);
+        auto const &[token_type, token_pattern] = token_info;
+        auto const pattern_regex = std::regex(token_pattern);
 
-        // check if current pos corresponds to the start of a keyword
-        if (is_char_in_pattern(contents.at(pos), RueConstants::PMTD_KEYWORDS_CHARS))
+        for (auto it = std::sregex_iterator(contents.begin(), contents.end(), pattern_regex);
+             it != std::sregex_iterator(); it++)
         {
-            std::string_view longest_matching_keyword;
+            auto match = *it;
+            uint64_t const pos = match.position(0);
+            auto const line_iter =
+                std::find_if(newline_positions.begin(), newline_positions.end(),
+                             [pos](uint64_t const known_newline_pos) { return known_newline_pos > pos; });
+            uint64_t const line = std::distance(newline_positions.begin(), line_iter);
+            uint64_t const prev_newline_pos =
+                (newline_positions.size() && newline_positions.begin() == line_iter) ? 0 : *(line_iter - 1);
+            uint64_t const column = pos - prev_newline_pos;
 
-            for (std::string_view str : RueConstants::RUELANG_KEYWORDS)
-            {
-                if (contents_tail.starts_with(str))
-                {
-                    if (str.length() > longest_matching_keyword.length())
-                    {
-                        longest_matching_keyword = str;
-                    }
-                }
-            }
-
-            if (longest_matching_keyword.length() > 0)
-            {
-                // found our keyword, advance pos and start fresh
-                std::cout << '\'' << longest_matching_keyword << "\'\n";
-                tokens.push_back({RueTokenizer::TokenType::KEYWORD, std::optional(longest_matching_keyword)});
-                pos += longest_matching_keyword.length();
-                continue;
-            }
+            lexeme_info[pos] = LexemeInfo(token_type, match[0].length(), line, column);
         }
-
-        // We expect to have identified all tokens at this point in our loop.
-        // Since we haven't, this means we're facing an unknown token. Let's
-        // truncate at the nearest sign of whitespace and report our findings.
-        std::cout << '\'' << contents_tail << "\'\n";
-
-        size_t const first_unknown_token_begin = contents_tail.find_first_not_of(RueConstants::PMTD_WHITESPACE_CHARS);
-        size_t const first_unknown_token_length =
-            contents_tail.substr(first_unknown_token_begin).find_first_of(RueConstants::PMTD_WHITESPACE_CHARS);
-        std::string_view first_unknown_token =
-            contents_tail.substr(first_unknown_token_begin, first_unknown_token_length);
-
-        RUE_FAIL(RueError::RueError::UNKNOWN_TOKEN,
-                 "Unknown token is: " + pad_with_ellipsis(std::string(first_unknown_token), 15));
     }
-    return RueError::RueError::SUCCESS;
+
+    /*for (auto const &kv : lexeme_info)
+    {
+        std::cout << "line " << kv.second.line << " col " << kv.second.column << ": "
+                  << contents.substr(kv.first, kv.second.length) << "\n";
+    }*/
+    return lexeme_info;
 }
 
 } // namespace RueTokenizer
